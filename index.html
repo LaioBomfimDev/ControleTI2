@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Registro de Chamado</title>
+</head>
+
+<body>
+  <h2>Registrar Chamado</h2>
+
+  <form id="form">
+    <label>Nome do Técnico:</label><br>
+    <input type="text" id="nome" required><br><br>
+
+    <label>Horário Inicial:</label><br>
+    <input type="datetime-local" id="hInicio" required><br><br>
+
+    <label>Horário Final:</label><br>
+    <input type="datetime-local" id="hFim" required><br><br>
+
+    <label>Setor:</label><br>
+    <input type="text" id="setor" required><br><br>
+
+    <label>Problema:</label><br>
+    <textarea id="problema" required></textarea><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="status"></p>
+
+<script>
+  const url = "https://script.google.com/macros/s/AKfycbwQM6IWekKe5ErIAaCswRQgupvWXA5oXgzvqrMdMRQN1OtXKlDW3JVxdRnEzVsDjnQlow/exec";
+
+  document.getElementById("form").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const data = {
+      nome: document.getElementById("nome").value,
+      hInicio: document.getElementById("hInicio").value,
+      hFim: document.getElementById("hFim").value,
+      setor: document.getElementById("setor").value,
+      problema: document.getElementById("problema").value
+    };
+
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+      document.getElementById("status").innerHTML = "Chamado registrado com sucesso!";
+      document.getElementById("form").reset();
+    })
+    .catch(err => {
+      document.getElementById("status").innerHTML = "Erro ao enviar!";
+    });
+  });
+</script>
+
+</body>
+</html>
