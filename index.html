@@ -2,61 +2,350 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro de Chamado</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0e27;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  body::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    top: -250px;
+    right: -250px;
+    border-radius: 50%;
+  }
+  
+  body::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+    bottom: -200px;
+    left: -200px;
+    border-radius: 50%;
+  }
+  
+  .container {
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 1px rgba(99, 102, 241, 0.3);
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    position: relative;
+    z-index: 1;
+  }
+  
+  h2 {
+    color: #e5e7eb;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 28px;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    color: #9ca3af;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+    font-family: inherit;
+    background: rgba(31, 41, 55, 0.8);
+    color: #e5e7eb;
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280;
+  }
+  
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: rgba(31, 41, 55, 1);
+  }
+  
+  /* Estiliza inputs de data e hora no dark mode */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .time-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  
+  button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  }
+  
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  .status {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    display: none;
+  }
+  
+  .status.success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    display: block;
+  }
+  
+  .status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    display: block;
+  }
+  
+  .duracao {
+    background: rgba(99, 102, 241, 0.15);
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    color: #c7d2fe;
+    font-weight: 600;
+    margin-top: 10px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+  
+  small {
+    color: #6b7280 !important;
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      padding: 25px;
+    }
+    
+    .time-group {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 </head>
-
 <body>
-  <h2>Registrar Chamado</h2>
-
-  <form id="form">
-    <label>Nome do Técnico:</label><br>
-    <input type="text" id="nome" required><br><br>
-
-    <label>Horário Inicial:</label><br>
-    <input type="datetime-local" id="hInicio" required><br><br>
-
-    <label>Horário Final:</label><br>
-    <input type="datetime-local" id="hFim" required><br><br>
-
-    <label>Setor:</label><br>
-    <input type="text" id="setor" required><br><br>
-
-    <label>Problema:</label><br>
-    <textarea id="problema" required></textarea><br><br>
-
-    <button type="submit">Enviar</button>
-  </form>
-
-  <p id="status"></p>
+  <div class="container">
+    <h2>📋 Registro de Chamado</h2>
+    <form id="form">
+      <div class="form-group">
+        <label for="nome">👤 Nome do Técnico:</label>
+        <input type="text" id="nome" required placeholder="Digite o nome do técnico">
+      </div>
+      
+      <div class="form-group">
+        <label for="setor">🏢 Setor:</label>
+        <input type="text" id="setor" required placeholder="Ex: TI, Manutenção, etc.">
+      </div>
+      
+      <div class="form-group">
+        <label>📅 Data do Atendimento:</label>
+        <input type="date" id="dataAtendimento" required>
+      </div>
+      
+      <div class="form-group">
+        <label>🕐 Horários:</label>
+        <div class="time-group">
+          <div>
+            <input type="time" id="hInicio" required placeholder="Início">
+            <small style="color: #999; display: block; margin-top: 5px;">Início</small>
+          </div>
+          <div>
+            <input type="time" id="hFim" required placeholder="Fim">
+            <small style="color: #999; display: block; margin-top: 5px;">Término</small>
+          </div>
+        </div>
+        <div class="duracao" id="duracao" style="display: none;"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="problema">📝 Descrição do Problema:</label>
+        <textarea id="problema" required placeholder="Descreva o problema atendido..."></textarea>
+      </div>
+      
+      <button type="submit">✅ Registrar Chamado</button>
+    </form>
+    
+    <div class="status" id="status"></div>
+  </div>
 
 <script>
   const url = "https://script.google.com/macros/s/AKfycbwQM6IWekKe5ErIAaCswRQgupvWXA5oXgzvqrMdMRQN1OtXKlDW3JVxdRnEzVsDjnQlow/exec";
-
+  
+  // Define data de hoje como padrão
+  document.getElementById("dataAtendimento").valueAsDate = new Date();
+  
+  // Calcula duração ao alterar horários
+  function calcularDuracao() {
+    const inicio = document.getElementById("hInicio").value;
+    const fim = document.getElementById("hFim").value;
+    
+    if (inicio && fim) {
+      const [hI, mI] = inicio.split(':').map(Number);
+      const [hF, mF] = fim.split(':').map(Number);
+      
+      const minutoInicio = hI * 60 + mI;
+      const minutoFim = hF * 60 + mF;
+      const diff = minutoFim - minutoInicio;
+      
+      if (diff <= 0) {
+        document.getElementById("duracao").innerHTML = "⚠️ Horário final deve ser maior que inicial";
+        document.getElementById("duracao").style.background = "rgba(239, 68, 68, 0.2)";
+        document.getElementById("duracao").style.borderColor = "rgba(239, 68, 68, 0.3)";
+        document.getElementById("duracao").style.display = "block";
+        return false;
+      } else {
+        const horas = Math.floor(diff / 60);
+        const minutos = diff % 60;
+        let texto = "⏱️ Duração: ";
+        if (horas > 0) texto += `${horas}h `;
+        if (minutos > 0) texto += `${minutos}min`;
+        document.getElementById("duracao").innerHTML = texto;
+        document.getElementById("duracao").style.background = "rgba(16, 185, 129, 0.15)";
+        document.getElementById("duracao").style.borderColor = "rgba(16, 185, 129, 0.3)";
+        document.getElementById("duracao").style.display = "block";
+        return true;
+      }
+    }
+  }
+  
+  document.getElementById("hInicio").addEventListener("change", calcularDuracao);
+  document.getElementById("hFim").addEventListener("change", calcularDuracao);
+  
   document.getElementById("form").addEventListener("submit", function(e){
     e.preventDefault();
-
+    
+    // Valida horários
+    if (!calcularDuracao()) {
+      mostrarStatus("Horário final deve ser maior que o inicial!", "error");
+      return;
+    }
+    
+    // Formata os dados de forma mais organizada
+    const dataAtendimento = document.getElementById("dataAtendimento").value;
+    const hInicio = document.getElementById("hInicio").value;
+    const hFim = document.getElementById("hFim").value;
+    
+    // Calcula duração em minutos
+    const [hI, mI] = hInicio.split(':').map(Number);
+    const [hF, mF] = hFim.split(':').map(Number);
+    const duracaoMin = (hF * 60 + mF) - (hI * 60 + mI);
+    
     const data = {
-      nome: document.getElementById("nome").value,
-      hInicio: document.getElementById("hInicio").value,
-      hFim: document.getElementById("hFim").value,
-      setor: document.getElementById("setor").value,
-      problema: document.getElementById("problema").value
+      nome: document.getElementById("nome").value.trim(),
+      setor: document.getElementById("setor").value.trim(),
+      data: dataAtendimento, // YYYY-MM-DD
+      horaInicio: hInicio,   // HH:MM
+      horaFim: hFim,         // HH:MM
+      duracao: duracaoMin,   // em minutos
+      problema: document.getElementById("problema").value.trim(),
+      timestamp: new Date().toLocaleString('pt-BR') // Data/hora do registro
     };
-
+    
+    mostrarStatus("Enviando...", "success");
+    
     fetch(url, {
       method: "POST",
       body: JSON.stringify(data)
     })
     .then(r => r.json())
     .then(res => {
-      document.getElementById("status").innerHTML = "Chamado registrado com sucesso!";
+      mostrarStatus("✅ Chamado registrado com sucesso!", "success");
       document.getElementById("form").reset();
+      document.getElementById("dataAtendimento").valueAsDate = new Date();
+      document.getElementById("duracao").style.display = "none";
+      
+      // Remove mensagem após 3 segundos
+      setTimeout(() => {
+        document.getElementById("status").style.display = "none";
+      }, 3000);
     })
     .catch(err => {
-      document.getElementById("status").innerHTML = "Erro ao enviar!";
+      mostrarStatus("❌ Erro ao enviar. Tente novamente!", "error");
+      console.error(err);
     });
   });
+  
+  function mostrarStatus(mensagem, tipo) {
+    const status = document.getElementById("status");
+    status.textContent = mensagem;
+    status.className = "status " + tipo;
+  }
 </script>
-
 </body>
 </html>
