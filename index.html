@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<base target="_top">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro de Chamado</title>
@@ -108,7 +109,6 @@
     background: rgba(31, 41, 55, 1);
   }
   
-  /* Estiliza inputs de data e hora no dark mode */
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
@@ -148,6 +148,12 @@
   
   button:active {
     transform: translateY(0);
+  }
+  
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
   
   .status {
@@ -238,15 +244,13 @@
         <textarea id="problema" required placeholder="Descreva o problema atendido..."></textarea>
       </div>
       
-      <button type="submit">✅ Registrar Chamado</button>
+      <button type="submit" id="btnSubmit">✅ Registrar Chamado</button>
     </form>
     
     <div class="status" id="status"></div>
   </div>
 
 <script>
-  const url = "https://script.google.com/macros/s/AKfycbwQM6IWekKe5ErIAaCswRQgupvWXA5oXgzvqrMdMRQN1OtXKlDW3JVxdRnEzVsDjnQlow/exec";
-  
   // Define data de hoje como padrão
   document.getElementById("dataAtendimento").valueAsDate = new Date();
   
@@ -296,7 +300,12 @@
       return;
     }
     
-    // Formata os dados de forma mais organizada
+    // Desabilita o botão durante o envio
+    const btnSubmit = document.getElementById("btnSubmit");
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "📤 Enviando...";
+    
+    // Formata os dados
     const dataAtendimento = document.getElementById("dataAtendimento").value;
     const hInicio = document.getElementById("hInicio").value;
     const hFim = document.getElementById("hFim").value;
@@ -306,39 +315,40 @@
     const [hF, mF] = hFim.split(':').map(Number);
     const duracaoMin = (hF * 60 + mF) - (hI * 60 + mI);
     
-    const data = {
+    const dados = {
       nome: document.getElementById("nome").value.trim(),
       setor: document.getElementById("setor").value.trim(),
-      data: dataAtendimento, // YYYY-MM-DD
-      horaInicio: hInicio,   // HH:MM
-      horaFim: hFim,         // HH:MM
-      duracao: duracaoMin,   // em minutos
+      data: dataAtendimento,
+      horaInicio: hInicio,
+      horaFim: hFim,
+      duracao: duracaoMin,
       problema: document.getElementById("problema").value.trim(),
-      timestamp: new Date().toLocaleString('pt-BR') // Data/hora do registro
+      timestamp: new Date().toLocaleString('pt-BR')
     };
     
-    mostrarStatus("Enviando...", "success");
-    
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify(data)
-    })
-    .then(r => r.json())
-    .then(res => {
-      mostrarStatus("✅ Chamado registrado com sucesso!", "success");
-      document.getElementById("form").reset();
-      document.getElementById("dataAtendimento").valueAsDate = new Date();
-      document.getElementById("duracao").style.display = "none";
-      
-      // Remove mensagem após 3 segundos
-      setTimeout(() => {
-        document.getElementById("status").style.display = "none";
-      }, 3000);
-    })
-    .catch(err => {
-      mostrarStatus("❌ Erro ao enviar. Tente novamente!", "error");
-      console.error(err);
-    });
+    // Chama a função do Google Apps Script
+    google.script.run
+      .withSuccessHandler(function(resposta) {
+        mostrarStatus("✅ Chamado registrado com sucesso!", "success");
+        document.getElementById("form").reset();
+        document.getElementById("dataAtendimento").valueAsDate = new Date();
+        document.getElementById("duracao").style.display = "none";
+        
+        // Reabilita o botão
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "✅ Registrar Chamado";
+        
+        // Remove mensagem após 3 segundos
+        setTimeout(() => {
+          document.getElementById("status").style.display = "none";
+        }, 3000);
+      })
+      .withFailureHandler(function(erro) {
+        mostrarStatus("❌ Erro ao enviar: " + erro.message, "error");
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "✅ Registrar Chamado";
+      })
+      .salvarDados(dados);
   });
   
   function mostrarStatus(mensagem, tipo) {
